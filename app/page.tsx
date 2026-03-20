@@ -111,7 +111,6 @@ export default function Home() {
 
       setScripture(data.scripture);
       setLastBurn({ tokens: data.tokensUsed, provider: data.provider });
-      setApiKey("");
       setBurnFlash(true);
       setTimeout(() => setBurnFlash(false), 500);
       fetchLeaderboard();
