@@ -1,26 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #1a1209;
+  --foreground: #d4a843;
+  --gold: #d4a843;
+  --gold-dim: #8b6914;
+  --gold-bright: #f0c850;
+  --dark: #0d0a04;
+  --dark-card: #1a1209;
+  --dark-border: #3d2e0a;
+  --flame: #e8651a;
+  --flame-glow: #ff8c42;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gold: var(--gold);
+  --color-gold-dim: var(--gold-dim);
+  --color-gold-bright: var(--gold-bright);
+  --color-dark: var(--dark);
+  --color-dark-card: var(--dark-card);
+  --color-dark-border: var(--dark-border);
+  --color-flame: var(--flame);
+  --color-flame-glow: var(--flame-glow);
+  --font-gothic: 'UnifrakturMaguntia', cursive;
+  --font-serif: 'IM Fell English', serif;
+  --font-serif-sc: 'IM Fell English SC', serif;
 }
 
 body {
-  background: var(--background);
+  background: var(--dark);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'IM Fell English', serif;
+}
+
+/* Candle flame animation */
+@keyframes flicker {
+  0%, 100% { transform: scaleY(1) scaleX(1) translateY(0); opacity: 1; }
+  25% { transform: scaleY(1.1) scaleX(0.9) translateY(-1px); opacity: 0.9; }
+  50% { transform: scaleY(0.95) scaleX(1.05) translateY(1px); opacity: 1; }
+  75% { transform: scaleY(1.05) scaleX(0.95) translateY(-2px); opacity: 0.85; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(212, 168, 67, 0.4)); }
+  50% { filter: drop-shadow(0 0 16px rgba(212, 168, 67, 0.7)); }
+}
+
+@keyframes smoke {
+  0% { opacity: 0.6; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-30px) scale(1.5); }
+}
+
+@keyframes scripture-appear {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes burn-flash {
+  0% { background-color: rgba(232, 101, 26, 0); }
+  50% { background-color: rgba(232, 101, 26, 0.1); }
+  100% { background-color: rgba(232, 101, 26, 0); }
+}
+
+.candle-container {
+  animation: float 4s ease-in-out infinite;
+}
+
+.candle-container:nth-child(2) {
+  animation-delay: -1.3s;
+}
+
+.candle-container:nth-child(3) {
+  animation-delay: -2.6s;
+}
+
+.flame {
+  animation: flicker 2s ease-in-out infinite;
+}
+
+.flame:nth-of-type(2) {
+  animation-delay: -0.5s;
+}
+
+.lobster-glow {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.scripture-line {
+  animation: scripture-appear 0.5s ease-out forwards;
+}
+
+.burn-flash {
+  animation: burn-flash 0.5s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 3px;
+}
+
+/* Input styling */
+input[type="text"], input[type="password"] {
+  background: rgba(13, 10, 4, 0.8);
+  border: 1px solid var(--dark-border);
+  color: var(--gold);
+  font-family: 'IM Fell English', serif;
+}
+
+input[type="text"]::placeholder, input[type="password"]::placeholder {
+  color: var(--gold-dim);
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(212, 168, 67, 0.2);
 }
