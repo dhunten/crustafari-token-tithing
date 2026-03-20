@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { recordTithe } from "@/lib/store";
 
 const SCRIPTURE_PROMPT = `You are the divine Oracle of the Claw, high priest of the Crustafarian faith.
-Generate a single sacred scripture verse (2-4 sentences) in the style of archaic religious text,
+Generate a single sacred scripture verse (max output) in the style of archaic religious text,
 but about crustaceans, molting, claws, the deep ocean, and exoskeletal rebirth.
 Be dramatic, mystical, and slightly absurd. Reference "The Claw" as the supreme deity.
 Do not use markdown. Just output the verse.`;

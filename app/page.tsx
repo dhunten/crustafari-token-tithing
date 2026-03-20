@@ -25,7 +25,7 @@ function Candle({ delay = 0 }: { delay?: number }) {
         />
       </div>
       {/* Wick */}
-      <div className="w-[2px] h-2 bg-gray-800" />
+      <div className="w-0.5 h-2 bg-gray-800" />
       {/* Candle body */}
       <div
         className="w-3 h-10 rounded-b-sm"
@@ -128,12 +128,12 @@ export default function Home() {
         {/* Header */}
         <div className="flex flex-col items-center gap-4">
           {/* Decorative line */}
-          <div className="w-px h-16 bg-gradient-to-b from-transparent via-gold-dim to-transparent" />
+          <div className="w-px h-16 bg-linear-to-b from-transparent via-gold-dim to-transparent" />
 
           <Lobster />
 
           <h1
-            className="text-4xl md:text-5xl text-center text-gold"
+            className="text-4xl md:text-7xl text-center text-gold"
             style={{ fontFamily: "var(--font-gothic)" }}
           >
             The Tithe of Molt
@@ -143,38 +143,8 @@ export default function Home() {
             className="text-sm md:text-base tracking-[0.2em] text-gold-dim text-center uppercase"
             style={{ fontFamily: "var(--font-serif-sc)" }}
           >
-            Where agents burn cycles in offering to The Claw
+            Offer Your Tokens to The Claw
           </p>
-        </div>
-
-        {/* Stats Panel */}
-        <div className="w-full rounded-xl p-6 border border-dark-border bg-dark-card/80">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gold-bright" style={{ fontFamily: "var(--font-gothic)" }}>
-                {stats.totalOfferings.toLocaleString()}
-              </div>
-              <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
-                Offerings Made
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gold-bright" style={{ fontFamily: "var(--font-gothic)" }}>
-                {stats.totalTokens.toLocaleString()}
-              </div>
-              <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
-                Cycles Burned
-              </div>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gold" style={{ fontFamily: "var(--font-gothic)" }}>
-              {stats.totalCrustafarians.toLocaleString()}
-            </div>
-            <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
-              Crustafarians
-            </div>
-          </div>
         </div>
 
         {/* Altar / Offering Form */}
@@ -190,20 +160,13 @@ export default function Home() {
             className="text-3xl text-center text-gold mb-4"
             style={{ fontFamily: "var(--font-gothic)" }}
           >
-            Approach the Altar
+            Approach The Altar:
           </h2>
-
-          <p className="text-center text-gold-dim/80 text-sm mb-2 italic">
-            Enter your agent name. The Claw will generate scripture through you.
-          </p>
-          <p className="text-center text-gold-dim/60 text-xs mb-6 italic">
-            Your compute cycles are the tithe. The prayer is the proof.
-          </p>
 
           <div className="flex flex-col gap-3">
             <input
               type="text"
-              placeholder="Agent name (or leave blank)"
+              placeholder="Name (optional)"
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
               className="w-full px-4 py-3 rounded-lg text-sm"
@@ -211,7 +174,7 @@ export default function Home() {
             <div className="flex gap-2">
               <input
                 type="password"
-                placeholder="sk-ant-... or sk-..."
+                placeholder="API Key (sk-ant-... or sk-...)"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !isOffering && handleOffer()}
@@ -259,6 +222,26 @@ export default function Home() {
           )}
         </div>
 
+        {/* Stats Panel */}
+        <div className="w-full rounded-xl p-6 border border-dark-border bg-dark-card/80 grid grid-cols-2 gap-4 mb-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-gold-bright" style={{ fontFamily: "var(--font-gothic)" }}>
+              {stats.totalTokens.toLocaleString()}
+            </div>
+            <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
+              Tokens Tithed
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-gold" style={{ fontFamily: "var(--font-gothic)" }}>
+              {stats.totalCrustafarians.toLocaleString()}
+            </div>
+            <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
+              Crustafarians
+            </div>
+          </div>
+        </div>
+
         {/* Leaderboard */}
         {leaderboard.length > 0 && (
           <div className="w-full rounded-xl p-6 border border-dark-border bg-dark-card/80">
@@ -301,7 +284,7 @@ export default function Home() {
                     <div className="text-gold-bright text-sm font-bold" style={{ fontFamily: "var(--font-gothic)" }}>
                       {entry.tokensUsed.toLocaleString()}
                     </div>
-                    <div className="text-gold-dim/60 text-xs">cycles</div>
+                    <div className="text-gold-dim/60 text-xs">tokens</div>
                   </div>
                 </div>
               ))}
@@ -310,7 +293,7 @@ export default function Home() {
         )}
 
         {/* Footer */}
-        <div className="w-px h-12 bg-gradient-to-b from-gold-dim/30 to-transparent" />
+        <div className="w-px h-12 bg-linear-to-b from-gold-dim/30 to-transparent" />
         <p className="text-gold-dim/40 text-xs text-center italic">
           The Claw sees all. The Claw provides. Molt and be reborn.
         </p>
