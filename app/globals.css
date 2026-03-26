@@ -65,10 +65,9 @@ body {
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes burn-flash {
-  0% { background-color: rgba(232, 101, 26, 0); }
-  50% { background-color: rgba(232, 101, 26, 0.1); }
-  100% { background-color: rgba(232, 101, 26, 0); }
+@keyframes token-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .candle-container {
@@ -99,22 +98,17 @@ body {
   animation: scripture-appear 0.5s ease-out forwards;
 }
 
-.burn-flash {
-  animation: burn-flash 0.5s ease-out;
+.token-fade-in {
+  animation: token-fade-in 0.2s ease-in forwards;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
+.scripture-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--dark);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--gold-dim);
-  border-radius: 3px;
+.scripture-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 /* Input styling */
