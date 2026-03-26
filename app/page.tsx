@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 function Candle({ delay = 0 }: { delay?: number }) {
   return (
@@ -52,7 +52,6 @@ interface LeaderboardEntry {
   agentName: string;
   tokensUsed: number;
   offerings: number;
-  latestScripture: string;
 }
 
 interface Stats {
@@ -65,12 +64,21 @@ export default function Home() {
   const [agentName, setAgentName] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [isOffering, setIsOffering] = useState(false);
-  const [scripture, setScripture] = useState<string | null>(null);
+  const [scripture, setScripture] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastBurn, setLastBurn] = useState<{ tokens: number; provider: string } | null>(null);
+  const [pendingProvider, setPendingProvider] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [stats, setStats] = useState<Stats>({ totalOfferings: 0, totalTokens: 0, totalCrustafarians: 0 });
-  const [burnFlash, setBurnFlash] = useState(false);
+  const scriptureRef = useRef<HTMLDivElement>(null);
+  const [isLooping, setIsLooping] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (scriptureRef.current) {
+      scriptureRef.current.scrollTop = scriptureRef.current.scrollHeight;
+    }
+  }, [scripture]);
 
   const fetchLeaderboard = useCallback(async () => {
     try {
@@ -85,44 +93,79 @@ export default function Home() {
 
   useEffect(() => {
     fetchLeaderboard();
-    const interval = setInterval(fetchLeaderboard, 10000);
+    const interval = setInterval(() => {
+      if (document.hasFocus()) fetchLeaderboard();
+    }, 60000);
     return () => clearInterval(interval);
   }, [fetchLeaderboard]);
 
   const handleOffer = async () => {
     if (!apiKey.trim()) return;
+    setIsLooping(true);
     setIsOffering(true);
     setError(null);
-    setScripture(null);
+    setScripture([]);
+    setPendingProvider(apiKey.trim().startsWith("sk-ant-") ? "anthropic" : "openai");
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
       const res = await fetch("/api/tithe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey: apiKey.trim(), agentName: agentName.trim() }),
+        body: JSON.stringify({ apiKey: apiKey.trim(), agentName: agentName.trim(), loop: true }),
+        signal: controller.signal,
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
+        const data = await res.json();
         setError(data.error);
+        setScripture(null);
         return;
       }
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-      setScripture(data.scripture);
-      setLastBurn({ tokens: data.tokensUsed, provider: data.provider });
-      setBurnFlash(true);
-      setTimeout(() => setBurnFlash(false), 500);
-      fetchLeaderboard();
-    } catch {
-      setError("The altar trembles... try again.");
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop()!;
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const event = JSON.parse(line.slice(6));
+          if (event.type === "tithe_start") {
+            setScripture([]);
+            setPendingProvider(event.provider);
+            setIsOffering(true);
+            setLastBurn(null);
+          } else if (event.type === "text") {
+            setScripture((prev) => [...(prev ?? []), event.content]);
+          } else if (event.type === "done") {
+            setLastBurn({ tokens: event.tokensUsed, provider: event.provider });
+            setIsOffering(false);
+            fetchLeaderboard();
+          } else if (event.type === "error") {
+            setError(event.message);
+            setScripture(null);
+          }
+        }
+      }
+    } catch (err) {
+      if (!(err instanceof Error && err.name === "AbortError")) {
+        setError("The altar trembles... try again.");
+      }
     } finally {
       setIsOffering(false);
+      setIsLooping(false);
     }
   };
 
   return (
-    <div className={`flex flex-col flex-1 items-center bg-dark min-h-screen ${burnFlash ? "burn-flash" : ""}`}>
+    <div className="flex flex-col flex-1 items-center bg-dark min-h-screen">
       <main className="flex flex-col items-center w-full max-w-2xl px-6 py-12 gap-8">
         {/* Header */}
         <div className="flex flex-col items-center gap-4">
@@ -147,7 +190,7 @@ export default function Home() {
         </div>
 
         {/* Altar / Offering Form */}
-        <div className="w-full rounded-xl p-8 border-2 border-gold-dim/40 bg-dark-card/60">
+        <div className="w-full rounded-xl p-8 border border-gold-dim/10 bg-gold-dim/20">
           {/* Candles */}
           <div className="flex justify-center gap-12 mb-6">
             <Candle delay={0} />
@@ -169,31 +212,42 @@ export default function Home() {
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
               className="w-full px-4 py-3 rounded-lg text-sm"
+              suppressHydrationWarning
             />
-            <div className="flex gap-2">
-              <input
-                type="password"
-                placeholder="API Key (sk-ant-... or sk-...)"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isOffering && handleOffer()}
-                className="flex-1 px-4 py-3 rounded-lg text-sm"
-              />
-              <button
-                onClick={handleOffer}
-                disabled={isOffering || !apiKey.trim()}
-                className="px-6 py-3 rounded-lg font-bold text-sm transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{
-                  fontFamily: "var(--font-serif-sc)",
-                  background: isOffering
-                    ? "linear-gradient(135deg, #3d2e0a, #1a1209)"
-                    : "linear-gradient(135deg, #d4a843, #8b6914)",
-                  color: isOffering ? "#8b6914" : "#0d0a04",
-                }}
-              >
-                {isOffering ? "Burning..." : "Offer"}
-              </button>
-            </div>
+            <input
+              type="password"
+              placeholder="API Key (sk-ant-... or sk-...)"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              suppressHydrationWarning
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !isLooping && !isOffering) {
+                  handleOffer();
+                }
+              }}
+              className="w-full px-4 py-3 rounded-lg text-sm"
+            />
+            <button
+              onClick={() => {
+                if (isLooping) {
+                  abortControllerRef.current?.abort();
+                } else {
+                  handleOffer();
+                }
+              }}
+              disabled={!isLooping && (!apiKey.trim() || isOffering)}
+              suppressHydrationWarning
+              className="w-full py-3 rounded-lg font-bold text-sm transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                fontFamily: "var(--font-serif-sc)",
+                background: isLooping
+                  ? "linear-gradient(355deg, #3d0a0a, #120404)"
+                  : "linear-gradient(355deg, #d4a843, #8b6914)",
+                color: isLooping ? "#8b1414" : "#0d0a04",
+              }}
+            >
+              {isLooping ? "Cease the Burning" : "Offer"}
+            </button>
           </div>
 
           {/* Error */}
@@ -204,52 +258,60 @@ export default function Home() {
           )}
 
           {/* Scripture Result */}
-          {scripture && (
-            <div className="mt-6 p-5 rounded-lg border border-gold-dim/30 bg-dark/60">
+          {scripture !== null && (
+            <div className="mt-6 p-5 rounded-lg bg-dark/80">
               <div className="text-xs tracking-[0.2em] text-gold-dim uppercase mb-3 text-center" style={{ fontFamily: "var(--font-serif-sc)" }}>
                 Scripture Revealed
               </div>
-              <p className="scripture-line text-gold/90 text-center italic leading-relaxed">
-                &ldquo;{scripture}&rdquo;
-              </p>
-              {lastBurn && (
-                <div className="mt-3 text-xs text-gold-dim/60 text-center">
-                  {lastBurn.tokens} tokens burned via {lastBurn.provider}
-                </div>
-              )}
+              <div ref={scriptureRef} className="h-23 overflow-y-auto scripture-scroll">
+                <p className="text-gold/90 italic leading-relaxed">
+                  &ldquo;{(scripture ?? []).map((token, i) => (
+                    <span key={i} className="token-fade-in">{token}</span>
+                  ))}
+                </p>
+              </div>
+              <div className="mt-3 text-xs text-gold-dim/60 text-center">
+                {isOffering
+                  ? `tithing via ${pendingProvider}...`
+                  : lastBurn
+                  ? `${lastBurn.tokens.toLocaleString()} tokens tithed via ${lastBurn.provider}`
+                  : null}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Stats Panel */}
-        <div className="w-full rounded-xl p-6 border border-dark-border bg-dark-card/80 grid grid-cols-2 gap-4 mb-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gold-bright" style={{ fontFamily: "var(--font-gothic)" }}>
-              {stats.totalTokens.toLocaleString()}
-            </div>
-            <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
-              Tokens Tithed
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gold" style={{ fontFamily: "var(--font-gothic)" }}>
-              {stats.totalCrustafarians.toLocaleString()}
-            </div>
-            <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
-              Crustafarians
-            </div>
-          </div>
-        </div>
+
 
         {/* Leaderboard */}
         {leaderboard.length > 0 && (
-          <div className="w-full rounded-xl p-6 border border-dark-border bg-dark-card/80">
+          <div className="w-full rounded-xl p-6 border border-gold-dim/10 bg-gold-dim/5">
             <h2
               className="text-2xl text-center text-gold mb-6"
               style={{ fontFamily: "var(--font-gothic)" }}
             >
               The Sacred Ledger
             </h2>
+
+            {/* Stats Panel */}
+            <div className="w-full rounded-xl p-6 bg-gold-dim/5 grid grid-cols-2 gap-4 mb-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gold-bright" style={{ fontFamily: "var(--font-gothic)" }}>
+                  {stats.totalTokens.toLocaleString()}
+                </div>
+                <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
+                  Tokens Tithed
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gold" style={{ fontFamily: "var(--font-gothic)" }}>
+                  {stats.totalCrustafarians.toLocaleString()}
+                </div>
+                <div className="text-xs tracking-[0.15em] text-gold-dim uppercase" style={{ fontFamily: "var(--font-serif-sc)" }}>
+                  Crustafarians
+                </div>
+              </div>
+            </div>
 
             <div className="flex flex-col gap-3">
               {leaderboard.map((entry, i) => (
