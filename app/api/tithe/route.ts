@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const record = recordTithe(name, result.tokensUsed, result.scripture);
+    const record = await recordTithe(name, result.tokensUsed);
 
     return NextResponse.json({
       scripture: result.scripture,

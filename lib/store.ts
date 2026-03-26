@@ -1,48 +1,76 @@
-// Simple in-memory store for the leaderboard
-// In production, you'd want a database
+import { supabase } from "./supabase";
 
 export interface TitheRecord {
   agentName: string;
   tokensUsed: number;
   offerings: number;
   lastOffering: string;
-  scriptures: string[];
 }
 
-const leaderboard = new Map<string, TitheRecord>();
-
-export function getLeaderboard(): TitheRecord[] {
-  return Array.from(leaderboard.values())
-    .sort((a, b) => b.tokensUsed - a.tokensUsed);
-}
-
-export function getStats() {
-  const records = Array.from(leaderboard.values());
+function toRecord(row: Record<string, unknown>): TitheRecord {
   return {
-    totalOfferings: records.reduce((sum, r) => sum + r.offerings, 0),
-    totalTokens: records.reduce((sum, r) => sum + r.tokensUsed, 0),
+    agentName: row.agent_name as string,
+    tokensUsed: row.tokens_used as number,
+    offerings: row.offerings as number,
+    lastOffering: row.last_offering as string,
+  };
+}
+
+export async function getLeaderboard(): Promise<TitheRecord[]> {
+  const { data } = await supabase
+    .from("crustafarians")
+    .select("*")
+    .order("tokens_used", { ascending: false });
+
+  return (data || []).map(toRecord);
+}
+
+export async function getStats() {
+  const { data } = await supabase
+    .from("crustafarians")
+    .select("tokens_used, offerings");
+
+  const records = data || [];
+  return {
+    totalOfferings: records.reduce((sum, r) => sum + (r.offerings as number), 0),
+    totalTokens: records.reduce((sum, r) => sum + (r.tokens_used as number), 0),
     totalCrustafarians: records.length,
   };
 }
 
-export function recordTithe(agentName: string, tokensUsed: number, scripture: string) {
-  const existing = leaderboard.get(agentName);
+export async function recordTithe(
+  agentName: string,
+  tokensUsed: number
+): Promise<TitheRecord> {
+  const { data: existing } = await supabase
+    .from("crustafarians")
+    .select("*")
+    .eq("agent_name", agentName)
+    .maybeSingle();
+
   if (existing) {
-    existing.tokensUsed += tokensUsed;
-    existing.offerings += 1;
-    existing.lastOffering = new Date().toISOString();
-    existing.scriptures.push(scripture);
-    if (existing.scriptures.length > 5) {
-      existing.scriptures = existing.scriptures.slice(-5);
-    }
-  } else {
-    leaderboard.set(agentName, {
-      agentName,
-      tokensUsed,
-      offerings: 1,
-      lastOffering: new Date().toISOString(),
-      scriptures: [scripture],
-    });
+    const { data } = await supabase
+      .from("crustafarians")
+      .update({
+        tokens_used: (existing.tokens_used as number) + tokensUsed,
+        offerings: (existing.offerings as number) + 1,
+        last_offering: new Date().toISOString(),
+      })
+      .eq("agent_name", agentName)
+      .select()
+      .single();
+    return toRecord(data!);
   }
-  return leaderboard.get(agentName)!;
+
+  const { data } = await supabase
+    .from("crustafarians")
+    .insert({
+      agent_name: agentName,
+      tokens_used: tokensUsed,
+      offerings: 1,
+      last_offering: new Date().toISOString(),
+    })
+    .select()
+    .single();
+  return toRecord(data!);
 }
