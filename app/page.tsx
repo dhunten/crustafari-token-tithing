@@ -10,7 +10,7 @@ function Candle({ delay = 0 }: { delay?: number }) {
         <div
           className="flame absolute inset-0 rounded-full"
           style={{
-            background: "radial-gradient(ellipse at center, #fff7a8 0%, #ffb347 40%, #e8651a 70%, transparent 100%)",
+            background: "radial-gradient(ellipse at center, #fff5a0 0%, #ff4400 40%, #880000 70%, transparent 100%)",
             filter: "blur(1px)",
             animationDelay: `${delay * 0.7}s`,
           }}
@@ -18,24 +18,24 @@ function Candle({ delay = 0 }: { delay?: number }) {
         <div
           className="flame absolute inset-0 rounded-full opacity-60"
           style={{
-            background: "radial-gradient(ellipse at center, #ffffff 0%, #ffe066 50%, transparent 100%)",
+            background: "radial-gradient(ellipse at center, #ffffff 0%, #ff6600 50%, transparent 100%)",
             filter: "blur(2px)",
             animationDelay: `${delay * 0.3}s`,
           }}
         />
       </div>
       {/* Wick */}
-      <div className="w-0.5 h-2 bg-gray-800" />
+      <div className="w-0.5 h-2 bg-gray-900" />
       {/* Candle body */}
       <div
-        className="w-3 h-10 rounded-b-sm"
+        className="w-3 h-10 rounded-t-xs"
         style={{
-          background: "linear-gradient(180deg, #f5e6c8 0%, #d4c4a0 50%, #c4b48a 100%)",
+          background: "linear-gradient(180deg, #FEFFCC 0%, #F8CE86 100%)",
         }}
       />
       {/* Holder */}
-      <div className="w-6 h-1 bg-gold-dim rounded-sm" />
-      <div className="w-4 h-3 bg-gold-dim rounded-b-sm" />
+      <div className="w-6 h-1 rounded-sm" style={{ background: "#3d2812" }} />
+      <div className="w-4 h-3 rounded-b-sm" style={{ background: "#2a1c0a" }} />
     </div>
   );
 }
@@ -169,8 +169,10 @@ export default function Home() {
       <main className="flex flex-col items-center w-full max-w-2xl px-6 py-12 gap-8">
         {/* Header */}
         <div className="flex flex-col items-center gap-4">
-          {/* Decorative line */}
-          <div className="w-px h-16 bg-linear-to-b from-transparent via-gold-dim to-transparent" />
+          {/* Decorative divider */}
+          <div className="d2-divider w-full max-w-xs">
+            <span className="text-gold-dim/50 text-[10px] select-none">⬦</span>
+          </div>
 
           <Lobster />
 
@@ -190,7 +192,7 @@ export default function Home() {
         </div>
 
         {/* Altar / Offering Form */}
-        <div className="w-full rounded-xl p-8 border border-gold-dim/10 bg-gold-dim/20">
+        <div className="d2-panel w-full rounded-none p-8">
           {/* Candles */}
           <div className="flex justify-center gap-12 mb-6">
             <Candle delay={0} />
@@ -211,7 +213,7 @@ export default function Home() {
               placeholder="Name (optional)"
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg text-sm"
+              className="w-full px-4 py-3 text-sm"
               suppressHydrationWarning
             />
             <input
@@ -225,7 +227,7 @@ export default function Home() {
                   handleOffer();
                 }
               }}
-              className="w-full px-4 py-3 rounded-lg text-sm"
+              className="w-full px-4 py-3 text-sm"
             />
             <button
               onClick={() => {
@@ -237,13 +239,16 @@ export default function Home() {
               }}
               disabled={!isLooping && (!apiKey.trim() || isOffering)}
               suppressHydrationWarning
-              className="w-full py-3 rounded-lg font-bold text-sm transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 font-bold text-sm transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 fontFamily: "var(--font-serif-sc)",
+                border: isLooping ? "1px solid #5a0a0a" : "1px solid #5a3810",
                 background: isLooping
-                  ? "linear-gradient(355deg, #3d0a0a, #120404)"
-                  : "linear-gradient(355deg, #d4a843, #8b6914)",
-                color: isLooping ? "#8b1414" : "#0d0a04",
+                  ? "linear-gradient(180deg, #3d0000 0%, #200000 100%)"
+                  : "linear-gradient(180deg, #3d2010 0%, #2a1408 50%, #1a0c04 100%)",
+                color: isLooping ? "#c41a00" : "#c8a060",
+                letterSpacing: "0.12em",
+                boxShadow: "inset 0 1px 0 rgba(200,160,80,0.08), 0 2px 8px rgba(0,0,0,0.6)",
               }}
             >
               {isLooping ? "Cease the Burning" : "Offer"}
@@ -252,14 +257,14 @@ export default function Home() {
 
           {/* Error */}
           {error && (
-            <div className="mt-4 p-3 rounded-lg bg-red-900/20 border border-red-800/40 text-red-400 text-sm text-center">
+            <div className="mt-4 p-3 bg-red-900/20 border border-red-800/40 text-red-400 text-sm text-center">
               {error}
             </div>
           )}
 
           {/* Scripture Result */}
           {scripture !== null && (
-            <div className="mt-6 p-5 rounded-lg bg-dark/80">
+            <div className="mt-6 p-5 border border-dark-border/50" style={{ background: "rgba(4, 2, 1, 0.9)", boxShadow: "inset 0 2px 15px rgba(0,0,0,0.8)" }}>
               <div className="text-xs tracking-[0.2em] text-gold-dim uppercase mb-3 text-center" style={{ fontFamily: "var(--font-serif-sc)" }}>
                 Scripture Revealed
               </div>
@@ -285,7 +290,7 @@ export default function Home() {
 
         {/* Leaderboard */}
         {leaderboard.length > 0 && (
-          <div className="w-full rounded-xl p-6 border border-gold-dim/10 bg-gold-dim/5">
+          <div className="d2-panel w-full rounded-none p-6">
             <h2
               className="text-2xl text-center text-gold mb-6"
               style={{ fontFamily: "var(--font-gothic)" }}
@@ -294,7 +299,7 @@ export default function Home() {
             </h2>
 
             {/* Stats Panel */}
-            <div className="w-full rounded-xl p-6 bg-gold-dim/5 grid grid-cols-2 gap-4 mb-4">
+            <div className="w-full p-6 grid grid-cols-2 gap-4 mb-4 border border-dark-border/30" style={{ background: "rgba(4, 2, 1, 0.7)", boxShadow: "inset 0 2px 12px rgba(0,0,0,0.7)" }}>
               <div className="text-center">
                 <div className="text-2xl font-bold text-gold-bright" style={{ fontFamily: "var(--font-gothic)" }}>
                   {stats.totalTokens.toLocaleString()}
@@ -317,16 +322,23 @@ export default function Home() {
               {leaderboard.map((entry, i) => (
                 <div
                   key={entry.agentName}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-dark-border/50 bg-dark/40"
+                  className="flex items-center gap-3 p-3"
+                  style={{
+                    border: `1px solid rgba(61, 40, 18, ${i === 0 ? "0.9" : "0.4"})`,
+                    background: i === 0 ? "rgba(40, 25, 5, 0.85)" : "rgba(10, 6, 2, 0.6)",
+                    boxShadow: i === 0 ? "inset 0 0 20px rgba(0,0,0,0.5)" : "inset 0 1px 8px rgba(0,0,0,0.6)",
+                  }}
                 >
                   {/* Rank */}
                   <div
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold shrink-0"
+                    className="w-7 h-7 flex items-center justify-center text-sm shrink-0"
                     style={{
-                      fontFamily: "var(--font-gothic)",
-                      background: i === 0 ? "linear-gradient(135deg, #d4a843, #8b6914)" : "transparent",
-                      color: i === 0 ? "#0d0a04" : "#8b6914",
-                      border: i === 0 ? "none" : "1px solid #3d2e0a",
+                      fontFamily: "var(--font-serif-sc)",
+                      fontWeight: 700,
+                      background: i === 0 ? "linear-gradient(180deg, #c8a060, #7a5230)" : "transparent",
+                      color: i === 0 ? "#0c0804" : "#7a5230",
+                      border: i === 0 ? "1px solid #c8a060" : "1px solid #3d2812",
+                      boxShadow: i === 0 ? "0 0 8px rgba(200,160,80,0.3)" : "none",
                     }}
                   >
                     {i + 1}
@@ -354,8 +366,10 @@ export default function Home() {
         )}
 
         {/* Footer */}
-        <div className="w-px h-12 bg-linear-to-b from-gold-dim/30 to-transparent" />
-        <p className="text-gold-dim/40 text-xs text-center italic">
+        <div className="d2-divider w-full max-w-xs">
+          <span className="text-gold-dim/40 text-[10px] select-none">☽ ⬦ ☾</span>
+        </div>
+        <p className="text-gold-dim/40 text-xs text-center italic" style={{ fontFamily: "var(--font-serif-sc)", letterSpacing: "0.08em" }}>
           The Claw sees all. The Claw provides. Molt and be reborn.
         </p>
       </main>
