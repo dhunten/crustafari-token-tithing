@@ -1,18 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&display=swap');
 @import "tailwindcss";
 @source "../app/**/*.{ts,tsx}";
 
 :root {
-  --background: #1a1209;
-  --foreground: #d4a843;
-  --gold: #d4a843;
-  --gold-dim: #8b6914;
-  --gold-bright: #f0c850;
-  --dark: #0d0a04;
-  --dark-card: #1a1209;
-  --dark-border: #3d2e0a;
-  --flame: #e8651a;
-  --flame-glow: #ff8c42;
+  --background: #080503;
+  --foreground: #c8a060;
+  --gold: #c8a060;
+  --gold-dim: #7a5230;
+  --gold-bright: #e8c46a;
+  --dark: #080503;
+  --dark-card: #120c06;
+  --dark-border: #3d2812;
+  --blood: #8b0000;
+  --blood-bright: #c41a00;
+  --bone: #c8b898;
+  --flame: #cc2200;
+  --flame-glow: #ff5500;
 }
 
 @theme inline {
@@ -24,15 +27,21 @@
   --color-dark: var(--dark);
   --color-dark-card: var(--dark-card);
   --color-dark-border: var(--dark-border);
+  --color-blood: var(--blood);
+  --color-blood-bright: var(--blood-bright);
+  --color-bone: var(--bone);
   --color-flame: var(--flame);
   --color-flame-glow: var(--flame-glow);
-  --font-gothic: 'UnifrakturMaguntia', cursive;
+  --font-gothic: 'Cinzel Decorative', serif;
   --font-serif: 'IM Fell English', serif;
-  --font-serif-sc: 'IM Fell English SC', serif;
+  --font-serif-sc: 'Cinzel', serif;
 }
 
 body {
   background: var(--dark);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(60, 18, 4, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 50% 110%, rgba(40, 8, 4, 0.4) 0%, transparent 70%);
   color: var(--foreground);
   font-family: 'IM Fell English', serif;
 }
@@ -40,9 +49,9 @@ body {
 /* Candle flame animation */
 @keyframes flicker {
   0%, 100% { transform: scaleY(1) scaleX(1) translateY(0); opacity: 1; }
-  25% { transform: scaleY(1.1) scaleX(0.9) translateY(-1px); opacity: 0.9; }
-  50% { transform: scaleY(0.95) scaleX(1.05) translateY(1px); opacity: 1; }
-  75% { transform: scaleY(1.05) scaleX(0.95) translateY(-2px); opacity: 0.85; }
+  20% { transform: scaleY(1.15) scaleX(0.85) translateY(-2px); opacity: 0.85; }
+  50% { transform: scaleY(0.9) scaleX(1.1) translateY(1px); opacity: 0.95; }
+  75% { transform: scaleY(1.1) scaleX(0.9) translateY(-3px); opacity: 0.8; }
 }
 
 @keyframes float {
@@ -51,8 +60,14 @@ body {
 }
 
 @keyframes glow-pulse {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(212, 168, 67, 0.4)); }
-  50% { filter: drop-shadow(0 0 16px rgba(212, 168, 67, 0.7)); }
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(180, 30, 10, 0.7))
+            drop-shadow(0 0 20px rgba(100, 10, 0, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(230, 60, 10, 1))
+            drop-shadow(0 0 45px rgba(160, 20, 0, 0.7));
+  }
 }
 
 @keyframes smoke {
@@ -83,15 +98,15 @@ body {
 }
 
 .flame {
-  animation: flicker 2s ease-in-out infinite;
+  animation: flicker 1.5s ease-in-out infinite;
 }
 
 .flame:nth-of-type(2) {
-  animation-delay: -0.5s;
+  animation-delay: -0.4s;
 }
 
 .lobster-glow {
-  animation: glow-pulse 3s ease-in-out infinite;
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .scripture-line {
@@ -111,20 +126,69 @@ body {
   display: none;
 }
 
-/* Input styling */
+/* Diablo-style stone panel */
+.d2-panel {
+  position: relative;
+  background: linear-gradient(160deg, #1e1408 0%, #130d06 55%, #0c0804 100%);
+  border: 1px solid #3d2812;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 75, 20, 0.18),
+    inset 0 0 60px rgba(0, 0, 0, 0.65),
+    0 4px 40px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.d2-panel::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(120, 75, 20, 0.1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ornate divider */
+.d2-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.d2-divider::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(122, 82, 48, 0.5));
+}
+
+.d2-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to left, transparent, rgba(122, 82, 48, 0.5));
+}
+
+/* Input styling — D2 inventory slot */
 input[type="text"], input[type="password"] {
-  background: rgba(13, 10, 4, 0.8);
-  border: 1px solid var(--dark-border);
+  background: rgba(4, 2, 1, 0.96);
+  border: 1px solid #3d2812;
   color: var(--gold);
-  font-family: 'IM Fell English', serif;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(0, 0, 0, 0.4);
 }
 
 input[type="text"]::placeholder, input[type="password"]::placeholder {
   color: var(--gold-dim);
+  opacity: 0.7;
 }
 
 input[type="text"]:focus, input[type="password"]:focus {
   outline: none;
-  border-color: var(--gold);
-  box-shadow: 0 0 10px rgba(212, 168, 67, 0.2);
+  border-color: #5a3c18;
+  box-shadow:
+    inset 0 2px 12px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(122, 82, 48, 0.25);
 }
