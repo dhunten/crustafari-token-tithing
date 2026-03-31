@@ -1,19 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&display=swap');
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'Exocet';
-  src: url('/Exocet Heavy.ttf') format('truetype');
-  font-weight: 700;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Exocet';
-  src: url('/Exocet Light.ttf') format('truetype');
-  font-weight: 300;
-  font-display: swap;
-}
 @source "../app/**/*.{ts,tsx}";
 
 :root {
@@ -46,10 +31,10 @@
   --color-bone: var(--bone);
   --color-flame: var(--flame);
   --color-flame-glow: var(--flame-glow);
-  --font-gothic: 'Exocet', 'Cinzel Decorative', serif;
-  --font-gothic-light: 'Exocet', 'Cinzel Decorative', serif;
-  --font-serif: 'IM Fell English', serif;
-  --font-serif-sc: 'Cinzel', serif;
+  --font-gothic: var(--font-exocet), var(--font-cinzel-decorative), serif;
+  --font-gothic-light: var(--font-exocet), var(--font-cinzel-decorative), serif;
+  --font-serif: var(--font-im-fell), serif;
+  --font-serif-sc: var(--font-cinzel), serif;
 }
 
 body {
@@ -57,17 +42,22 @@ body {
   background-repeat: repeat;
   background-size: 400px;
   color: var(--foreground);
-  font-family: 'IM Fell English', serif;
+  font-family: var(--font-im-fell), serif;
 }
 
-.page-frame {
-  background-color: transparent;
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
   border-style: solid;
+  border-color: transparent;
+  border-width: 230px 370px 176px 370px;
   border-image-source: url('/background-9slice.png');
-  border-image-slice: 230 370 176 370 fill;
+  border-image-slice: 230 370 176 370;
   border-image-width: 230px 370px 176px 370px;
   border-image-repeat: stretch;
-  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 9999;
 }
 
 /* Candle flame animation */

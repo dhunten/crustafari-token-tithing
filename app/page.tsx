@@ -165,20 +165,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col flex-1 items-center bg-dark min-h-screen page-frame">
+    <div className="flex flex-col flex-1 items-center bg-dark min-h-screen">
       <main className="flex flex-col items-center w-full max-w-2xl px-6 py-12 gap-8">
         {/* Header */}
         <div className="flex flex-col items-center gap-4">
-          {/* Decorative divider */}
-          <div className="d2-divider w-full max-w-xs">
-            <span className="text-gold-dim/50 text-[10px] select-none">⬦</span>
-          </div>
 
           <Lobster />
 
           <h1
-            className="text-4xl md:text-7xl text-center text-gold"
-            style={{ fontFamily: "var(--font-gothic)" }}
+            className="text-4xl md:text-7xl text-center text-gold font-gothic"
           >
             The Tithe of Molt
           </h1>
@@ -279,8 +274,8 @@ export default function Home() {
                 {isOffering
                   ? `tithing via ${pendingProvider}...`
                   : lastBurn
-                  ? `${lastBurn.tokens.toLocaleString()} tokens tithed via ${lastBurn.provider}`
-                  : null}
+                    ? `${lastBurn.tokens.toLocaleString()} tokens tithed via ${lastBurn.provider}`
+                    : null}
               </div>
             </div>
           )}
