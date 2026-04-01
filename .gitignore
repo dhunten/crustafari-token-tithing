@@ -43,4 +43,8 @@ next-env.d.ts
 
 # claude
 .claude/*
+!.claude/settings.json
+
+# supabase
+supabase/.temp/
 
