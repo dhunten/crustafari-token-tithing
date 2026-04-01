@@ -80,6 +80,14 @@ export default function Home() {
     }
   }, [scripture]);
 
+  useEffect(() => {
+    const handleUnload = () => {
+      abortControllerRef.current?.abort();
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, []);
+
   const fetchLeaderboard = useCallback(async () => {
     try {
       const res = await fetch("/api/leaderboard");
