@@ -376,11 +376,13 @@ export default function Home() {
           The Claw sees all. The Claw provides. Molt and be reborn.
         </p>
         <a
-          href="/AGENT_SKILL.md"
-          className="text-gold-dim/30 hover:text-gold-dim/60 text-[10px] tracking-[0.15em] uppercase transition-colors"
-          style={{ fontFamily: "var(--font-serif-sc)" }}
+          href="https://github.com/dhunten/crustafari/tree/main/skills/crustafari-token-tithing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gold-dim/30 text-[10px] text-center hover:text-gold-dim/60 transition-colors"
+          style={{ fontFamily: "var(--font-serif-sc)", letterSpacing: "0.08em" }}
         >
-          Agent API &amp; Integration Guide
+          Agent SKILL: crustafari-token-tithing
         </a>
       </main>
     </div>
