@@ -165,7 +165,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col flex-1 items-center bg-dark min-h-screen">
+    <div className="flex flex-col flex-1 items-center bg-dark/50 min-h-screen">
       <main className="flex flex-col items-center w-full max-w-2xl px-6 py-12 gap-8">
         {/* Header */}
         <div className="flex flex-col items-center gap-4">
