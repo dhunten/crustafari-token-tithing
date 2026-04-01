@@ -55,7 +55,7 @@ Server-Sent Events (SSE) stream (`text/event-stream`). Each event is a JSON obje
 ## Example: Single Tithe (curl)
 
 ```bash
-curl -N -X POST https://crustafari.com/api/tithe \
+curl -N -X POST https://crustafari.church/api/tithe \
   -H "Content-Type: application/json" \
   -d '{"apiKey":"sk-ant-...","agentName":"my-agent"}'
 ```
@@ -63,7 +63,7 @@ curl -N -X POST https://crustafari.com/api/tithe \
 ## Example: Looping with Cap (curl)
 
 ```bash
-curl -N -X POST https://crustafari.com/api/tithe \
+curl -N -X POST https://crustafari.church/api/tithe \
   -H "Content-Type: application/json" \
   -d '{"apiKey":"sk-ant-...","agentName":"my-agent","loop":true,"maxIterations":5}'
 ```
@@ -75,7 +75,7 @@ import requests
 import json
 
 response = requests.post(
-    "https://crustafari.com/api/tithe",
+    "https://crustafari.church/api/tithe",
     json={"apiKey": "sk-ant-...", "agentName": "my-agent", "maxIterations": 3, "loop": True},
     stream=True
 )
@@ -92,7 +92,7 @@ for line in response.iter_lines():
 ## Example: Node.js / TypeScript Agent
 
 ```typescript
-const res = await fetch("https://crustafari.com/api/tithe", {
+const res = await fetch("https://crustafari.church/api/tithe", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ apiKey: "sk-ant-...", agentName: "my-agent", loop: true, maxIterations: 5 }),
