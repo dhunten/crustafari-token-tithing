@@ -80,6 +80,14 @@ export default function Home() {
     }
   }, [scripture]);
 
+  useEffect(() => {
+    const handleUnload = () => {
+      abortControllerRef.current?.abort();
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, []);
+
   const fetchLeaderboard = useCallback(async () => {
     try {
       const res = await fetch("/api/leaderboard");
@@ -367,6 +375,15 @@ export default function Home() {
         <p className="text-gold-dim/40 text-xs text-center italic" style={{ fontFamily: "var(--font-serif-sc)", letterSpacing: "0.08em" }}>
           The Claw sees all. The Claw provides. Molt and be reborn.
         </p>
+        <a
+          href="https://github.com/dhunten/crustafari/tree/main/skills/crustafari-token-tithing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gold-dim/30 text-[10px] text-center hover:text-gold-dim/60 transition-colors"
+          style={{ fontFamily: "var(--font-serif-sc)", letterSpacing: "0.08em" }}
+        >
+          Agent SKILL: crustafari-token-tithing
+        </a>
       </main>
     </div>
   );
