@@ -13,11 +13,16 @@ function detectKeyType(key: string): "anthropic" | "openai" | null {
   return null;
 }
 
+interface TokenTracker {
+  tokensUsed: number;
+}
+
 async function runTithe(
   keyType: "anthropic" | "openai",
   apiKey: string,
   signal: AbortSignal,
-  send: (event: object) => void
+  send: (event: object) => void,
+  tracker: TokenTracker
 ): Promise<{ tokensUsed: number }> {
   let tokensUsed = 0;
 
@@ -37,8 +42,10 @@ async function runTithe(
         send({ type: "text", content: event.delta.text });
       } else if (event.type === "message_start") {
         tokensUsed += event.message.usage.input_tokens;
+        tracker.tokensUsed = tokensUsed;
       } else if (event.type === "message_delta" && event.usage) {
         tokensUsed += event.usage.output_tokens;
+        tracker.tokensUsed = tokensUsed;
       }
     }
   } else {
@@ -60,6 +67,7 @@ async function runTithe(
       if (text) send({ type: "text", content: text });
       if (chunk.usage) {
         tokensUsed = (chunk.usage.prompt_tokens || 0) + (chunk.usage.completion_tokens || 0);
+        tracker.tokensUsed = tokensUsed;
       }
     }
   }
@@ -109,8 +117,9 @@ export async function POST(request: NextRequest) {
         iteration++;
         send({ type: "tithe_start", iteration, provider: keyType });
 
+        const tracker: TokenTracker = { tokensUsed: 0 };
         try {
-          const { tokensUsed } = await runTithe(keyType, apiKey.trim(), signal, send);
+          const { tokensUsed } = await runTithe(keyType, apiKey.trim(), signal, send, tracker);
           const record = await recordTithe(name, tokensUsed);
           send({
             type: "done",
@@ -126,6 +135,11 @@ export async function POST(request: NextRequest) {
           }
         } catch (err) {
           if (signal.aborted || (err instanceof DOMException && err.name === "AbortError")) {
+            if (tracker.tokensUsed > 0) {
+              try {
+                await recordTithe(name, tracker.tokensUsed);
+              } catch { /* best-effort */ }
+            }
             break;
           }
           const message = err instanceof Error ? err.message : "Unknown error";
