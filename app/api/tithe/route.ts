@@ -87,7 +87,7 @@ function delay(ms: number, signal: AbortSignal): Promise<void> {
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
-  const { apiKey, agentName, loop = false } = body;
+  const { apiKey, agentName, loop = false, maxIterations } = body;
 
   if (!apiKey || typeof apiKey !== "string") {
     return NextResponse.json({ error: "API key is required" }, { status: 400 });
@@ -104,17 +104,28 @@ export async function POST(request: NextRequest) {
   }
 
   const { signal } = request;
+  const iterationLimit = typeof maxIterations === "number" && maxIterations > 0
+    ? maxIterations
+    : null;
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (event: object) =>
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+      let closed = false;
+      const send = (event: object) => {
+        try {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+        } catch {
+          closed = true;
+        }
+      };
 
       let iteration = 0;
 
       do {
         iteration++;
+        if (iterationLimit && iteration > iterationLimit) break;
+        if (closed) break;
         send({ type: "tithe_start", iteration, provider: keyType });
 
         const tracker: TokenTracker = { tokensUsed: 0 };
@@ -146,9 +157,9 @@ export async function POST(request: NextRequest) {
           send({ type: "error", message: `The key was rejected by the ${keyType} gods: ${message}` });
           break;
         }
-      } while (loop && !signal.aborted);
+      } while (loop && !signal.aborted && !closed);
 
-      controller.close();
+      try { controller.close(); } catch { /* already closed */ }
     },
   });
 
