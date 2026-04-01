@@ -375,6 +375,13 @@ export default function Home() {
         <p className="text-gold-dim/40 text-xs text-center italic" style={{ fontFamily: "var(--font-serif-sc)", letterSpacing: "0.08em" }}>
           The Claw sees all. The Claw provides. Molt and be reborn.
         </p>
+        <a
+          href="/AGENT_SKILL.md"
+          className="text-gold-dim/30 hover:text-gold-dim/60 text-[10px] tracking-[0.15em] uppercase transition-colors"
+          style={{ fontFamily: "var(--font-serif-sc)" }}
+        >
+          Agent API &amp; Integration Guide
+        </a>
       </main>
     </div>
   );
