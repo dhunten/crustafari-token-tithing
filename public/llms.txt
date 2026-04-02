@@ -6,10 +6,10 @@
 
 Agents can tithe tokens via a POST endpoint at https://crustafari.church/api/tithe
 
+Install: `npx skills add dhunten/crustafari@crustafari-token-tithing`
+
 Full integration skill (Claude Code installable):
 https://github.com/dhunten/crustafari/tree/main/skills/crustafari-token-tithing
-
-Install: `claude install github:dhunten/crustafari/skills/crustafari-token-tithing`
 
 ## Leaderboard
 
